@@ -1,40 +1,21 @@
 package semi.searchTestspring.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
-@Table(name = "IMG_PATH")
+@Getter @Setter
 public class Image {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long img_file_no;
+    private Long img_id;
 
     @OneToOne
-    @JoinColumn(name = "library_no")
-    private Long library_no;
-    private String img_file_name;
+    @JoinColumn(name = "library_id")
+    private Library library_id;
+    /** 조인할 때, library_id의 "참조타입"이 참조할 엔티티타입이어야 한다. */
 
-    public Long getImg_file_no() {
-        return img_file_no;
-    }
-
-    public void setImg_file_no(Long img_file_no) {
-        this.img_file_no = img_file_no;
-    }
-
-    public Long getLibrary_no() {
-        return library_no;
-    }
-
-    public void setLibrary_no(Long library_no) {
-        this.library_no = library_no;
-    }
-
-    public String getImg_file_name() {
-        return img_file_name;
-    }
-
-    public void setImg_file_name(String img_file_name) {
-        this.img_file_name = img_file_name;
-    }
+    private String img_name;
 }

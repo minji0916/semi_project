@@ -1,6 +1,7 @@
 package semi.searchTestspring.repository;
 
 import semi.searchTestspring.domain.Image;
+import semi.searchTestspring.domain.Library;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -15,29 +16,35 @@ public class JpaImageRepository implements ImageRepository {
     }
 
     @Override
-    public Image save(Image image) {
+    public Image saveImage(Image image) {
         em.persist(image);
         return image;
     }
 
     @Override
-    public Optional<Image> findById(Long img_file_no) {
-        Image image = em.find(Image.class, img_file_no);
+    public Optional<Image> findById(Long img_id) {
+        Image image = em.find(Image.class, img_id);
         return Optional.ofNullable(image);
     }
 
     @Override
-    public Optional<Image> findByname(String img_file_name) {
-        List<Image> result = em.createQuery("select m from Member m where" +
-                "m.name = :name", Image.class)
-                .setParameter("name", img_file_name)
+    public Optional<Image> findByLibraryId(Long library_id) {
+        Image image = em.find(Image.class, library_id);
+        return Optional.ofNullable(image);
+    }
+
+    @Override // 이미지 이름으로 찾기
+    public Optional<Image> findByname(String img_name) { // 테이블명 주의
+        List<Image> result = em.createQuery("select m from Image m where" +
+                "m.img_name = :img_name", Image.class)
+                .setParameter("img_name", img_name)
                 .getResultList();
         return result.stream().findAny();
     }
 
     @Override
-    public List<Image> findAll() {
-        return em.createQuery("select m from Member m", Image.class)
+    public List<Image> findAll() { // 테이블명 주의
+        return em.createQuery("select m from Image m", Image.class)
                 .getResultList();
     }
 }

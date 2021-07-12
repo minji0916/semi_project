@@ -7,7 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Member")
+@Table(name = "member")
 @Getter @Setter
 public class MyMember {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +26,11 @@ public class MyMember {
     @NonNull
     @Column(name = "member_name")
     private String name;
+
+    /**
+     * 데이터베이스 테이블, 칼럼명 전부 소문자로.
+     * 단어 간의 연결은 _
+     * 카멜케이스 잘 안씀 . MemberRepo
+     *
+     * */
 }

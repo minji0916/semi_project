@@ -20,14 +20,14 @@ public class JpaLibraryRepository implements LibraryRepository{
         return library;
     }
 
-    @Override
-    public Optional<MyLibrary> findByNo(Long no) {
-        MyLibrary library = em.find(MyLibrary.class, no);
-        return Optional.ofNullable(library);
-    }
-
-    @Override
+    @Override //ex) library1인데 lib만 검색해도 목록이 나와야한다면 아래 주석처럼 바꾸고, Optional을 List로 바꾸기
     public Optional<MyLibrary> findByName(String name) {
+//        return em.createQuery("select l " +
+//                "from MyLibrary l " +
+//                "where l.name LIKE :name", MyLibrary.class)
+//                .setParameter("name", '%'+name+'%')
+//                .getResultList();
+        
         List<MyLibrary> result = em.createQuery("select m from MyLibrary m where " +
                 "m.name = :library_name", MyLibrary.class)
                 .setParameter("library_name", name)
@@ -36,18 +36,21 @@ public class JpaLibraryRepository implements LibraryRepository{
     }
 
     @Override
-    public List<MyLibrary> findByViews(int views) {
+    public List<MyLibrary> findByMemberName(String member_name) {
         return em.createQuery("select m from MyLibrary m where " +
-                "m.views = :views", MyLibrary.class)
-                .setParameter("views", views)
+                "m.member.name = :member_name", MyLibrary.class)
+                .setParameter("member_name", member_name)
                 .getResultList();
     }
 
     @Override
-    public List<MyLibrary> findByRegistDate(LocalDateTime requestDateTime) {
-        return em.createQuery("select m from MyLibrary m where " +
-                "m.requestDateTime = :date", MyLibrary.class)
-                .setParameter("date", requestDateTime)
+    public List<MyLibrary> findByLibMem(String name) {
+        return em.createQuery("select l " +
+                "from MyLibrary l " +
+                "join fetch l.member " +
+                "where l.name like :name or " +
+                "l.member.name like :name", MyLibrary.class)
+                .setParameter("name",  '%'+name+'%')
                 .getResultList();
     }
 
@@ -56,16 +59,40 @@ public class JpaLibraryRepository implements LibraryRepository{
         return em.createQuery("select m from MyLibrary m", MyLibrary.class)
                 .getResultList();
     }
-
-    @Override
-    public Optional<MyLibrary> findByMemberId(String member_id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<MyLibrary> findByMemberName(String member_name) {
-        return Optional.empty();
-    }
-
-
 }
+
+
+
+    //    @Override
+//    public Optional<MyLibrary> findByNo(Long no) {
+//        MyLibrary library = em.find(MyLibrary.class, no);
+//        return Optional.ofNullable(library);
+//    }
+//
+//    @Override
+//    public List<MyLibrary> findByViews(int views) {
+//        return em.createQuery("select m from MyLibrary m where " +
+//                "m.views = :views", MyLibrary.class)
+//                .setParameter("views", views)
+//                .getResultList();
+//    }
+//
+//    @Override
+//    public List<MyLibrary> findByRegistDate(LocalDateTime requestDateTime) {
+//        return em.createQuery("select m from MyLibrary m where " +
+//                "m.requestDateTime = :date", MyLibrary.class)
+//                .setParameter("date", requestDateTime)
+//                .getResultList();
+//    }
+//
+//
+//
+//    @Override
+//    public Optional<MyLibrary> findByMemberId(String member_id) {
+//        return Optional.empty();
+//    }
+
+
+
+
+

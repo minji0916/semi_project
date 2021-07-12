@@ -21,11 +21,6 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    //member 다찾기 (여러명 나올 것임)
-    public List<MyMember> findMembers(){
-        return memberRepository.findAll();
-    }
-
     //member_no로 member 찾기
     public Optional<MyMember> findMemberNo(Long no){
         return memberRepository.findByNo(no);
@@ -36,18 +31,23 @@ public class MemberService {
         return memberRepository.findById(id);
     }
 
-    //member_name 으로 member 찾기 (아이디 중복 안될 때)
-//    public Optional<MyMember> findMemberName(String name){
-//        return memberRepository.findByName(name);
-//    }
-
     //member_name 으로 member 찾기 (아이디 중복 될 때)
     public List<MyMember> findMemberName(String name){
         return memberRepository.findByName(name);
     }
 
+    //member 다찾기 (여러명 나올 것임)
+    //public List<MyMember> findMembers(){
+//        return memberRepository.findAll();
+//    }
+
+    //member_name 으로 member 찾기 (아이디 중복 안될 때)
+//    public Optional<MyMember> findMemberName(String name){
+//        return memberRepository.findByName(name);
+//    }
+
     //member_level로 member 찾기 (여러명 나올 것임)
-    public List<MyMember> findMemberLevel(String level) {
-        return memberRepository.findByLevel(level);
-    }
+//    public List<MyMember> findMemberLevel(String level) {
+//        return memberRepository.findByLevel(level);
+//    }
 }

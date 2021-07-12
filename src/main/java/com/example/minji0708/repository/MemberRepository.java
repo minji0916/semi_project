@@ -9,8 +9,8 @@ public interface MemberRepository {
     MyMember saveMember(MyMember member);
     Optional<MyMember> findByNo(Long no);
     Optional<MyMember> findById(String id);
-    List<MyMember> findAll();
-    List<MyMember> findByLevel(String level);
+    //List<MyMember> findAll();
+    //List<MyMember> findByLevel(String level);
 
     /** 이름은 중복 가능 */
     //이름 중복이 안될 때

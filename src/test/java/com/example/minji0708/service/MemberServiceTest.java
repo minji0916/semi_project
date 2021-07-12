@@ -2,6 +2,7 @@ package com.example.minji0708.service;
 
 import com.example.minji0708.domain.MyMember;
 import com.example.minji0708.repository.JpaMemberRepository;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,10 +78,10 @@ class MemberServiceTest {
         MyMember savedMember2 = jpaMemberRepository.saveMember(member2);
 
         //Then: member 다 검색
-        List<MyMember> findMemAll = jpaMemberRepository.findAll();
-        for ( MyMember m : findMemAll) {
-            System.out.println("member = " + m.getName());
-        }
+//        List<MyMember> findMemAll = jpaMemberRepository.findAll();
+//        for ( MyMember m : findMemAll) {
+//            System.out.println("member = " + m.getName());
+//        }
 
     }
 
@@ -124,83 +125,6 @@ class MemberServiceTest {
         MyMember findMem = jpaMemberRepository.findById(savedMember1.getId()).get();
         System.out.println(findMem.getName());
     }
-
-    @Test
-    @Rollback(value = false)
-    public void member_level_search() throws Exception{
-        //Given
-        // member1 생성
-        MyMember member1 = new MyMember();
-        member1.setId("id_1");
-        member1.setLevel("level_1");
-        member1.setName("jia");
-
-        // member2 생성
-        MyMember member2 = new MyMember();
-        member2.setId("id_2");
-        member2.setLevel("level_1");
-        member2.setName("minji");
-
-        // member3 생성
-        MyMember member3 = new MyMember();
-        member3.setId("id_3");
-        member3.setLevel("level_2");
-        member3.setName("minjia");
-
-        //When : memeber1
-        MyMember savedMember1 = jpaMemberRepository.saveMember(member1);
-        MyMember savedMember2 = jpaMemberRepository.saveMember(member2);
-        MyMember savedMember3 = jpaMemberRepository.saveMember(member3);
-
-        //Then : level 같은 애들 (level_1) 이름 검색
-        // Service
-        List<MyMember> findByLevel = memberService.findMemberLevel("level_1");
-        System.out.println("------------------------------------------------");
-        for ( MyMember m : findByLevel) {
-            System.out.println("member = " + m.getName());
-        }
-
-        System.out.println("------------------------------------------------");
-        // repository
-        List<MyMember> findMem = jpaMemberRepository.findByLevel(savedMember1.getLevel());
-        for ( MyMember m : findMem) {
-            System.out.println("member = " + m.getName());
-        }
-    }
-
-//    @Test
-//    @Rollback(value = false)
-//    public void member_name() throws Exception {
-//        //Given
-//        // member1 생성
-//        MyMember member1 = new MyMember();
-//        member1.setId("id_1");
-//        member1.setLevel("level_1");
-//        member1.setName("jia");
-//
-//        // member2 생성
-//        MyMember member2 = new MyMember();
-//        member2.setId("id_2");
-//        member2.setLevel("level_1");
-//        member2.setName("minji");
-//
-//        // member3 생성
-//        MyMember member3 = new MyMember();
-//        member3.setId("id_3");
-//        member3.setLevel("level_2");
-//        member3.setName("minjia");
-//
-//        //When : memeber1
-//        MyMember savedMember1 = jpaMemberRepository.saveMember(member1);
-//        MyMember savedMember2 = jpaMemberRepository.saveMember(member2);
-//        MyMember savedMember3 = jpaMemberRepository.saveMember(member3);
-//
-//        //Then
-//        // 이름 한명일 때
-//        System.out.println("------------------------------------------------");
-//        Optional<MyMember> findByName = memberService.findMemberName("jia");
-//        //System.out.println("findByName" +);
-//    }
 
     @Test
     @Rollback(value = false)

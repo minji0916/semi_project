@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Library")
+@Table(name = "library")
 @Getter @Setter
 public class MyLibrary {
 
@@ -17,8 +17,8 @@ public class MyLibrary {
     private Long no;
 
     @ManyToOne //라이브러리 여러개에 작성자 하나
-    @JoinColumn(name = "member_id")
-    private MyMember member_id;
+    @JoinColumn(name = "member_no")
+    private MyMember member;
 
     @Column(name="library_name")
     private String name;

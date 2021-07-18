@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<div class="container">
+    <div class="py-5 text-center"> <h2>파일 조회</h2>
+    </div>
+    <!--/*@thymesVar id="file" type="package semi.minji0718.domain.MyFile"*/-->
+    첨부파일: <a th:if="${file}" th:href="|/attach/${file.getNo()}|" th:text="${file.getUploadFileName()}" /><br/> <!--첨부파일 다운 받을 수 있는 링크 : 고객이 업로드한 파일명으로 나옴-->
+</div> <!-- /container -->
+</body>
+</html>
+<!--file.getUploadFileName();-->
+<!--file.();-->

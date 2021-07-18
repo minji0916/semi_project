@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../jszip/jszip.min.js"></script>
+    <script type="text/javascript" src="../jszip/jszip-utils.min.js"></script>
+    <script type="text/javascript" src="http://danml.com/js/download.js"></script>
+    <script type="text/javascript" src="../jszip/zip_common.js"></script>
+
+    <script type="text/javascript">
+
+	// global(window)영역에 zip-instance를 만들어 둔다.
+	var zipInst = null;
+
+	function myOnChangeFile(evt)
+	{
+	    //zip 파일
+		var file = document.getElementById("fileForUpload").files[0];
+
+		//확장자 추출
+		var fileName = document.getElementById("fileForUpload").value;
+        var ext = extractExt(fileName);
+
+        if(ext != 'zip'){
+            alert('zip 파일이 아닙니다.');
+            location.href='/upload-form';
+        }
+
+		if ( file )
+		{
+			var reader = new FileReader();
+
+			reader.onload = function (evt) {
+
+				// 파일내용을 읽으면 이 곳에 온다.
+				// 파일내용은 evt.target.result에 있게 되고 이를 JSZip에 넘겨 구조를 파악하게 한다.
+				JSZip.loadAsync( evt.target.result ).then(
+
+					// Zip파일내용이 처리되면 화면에 그리는 코드가 수행될 것이다.
+					function ( zip )
+			  		{
+			  			zipInst = zip;
+			  			checkfilelist( zipInst );
+			  			showfilelist( zipInst, 'zip_cotents' );
+					}
+				);
+	    		}
+
+			reader.onerror = function (evt) {
+	     		alert( '파일을 못 열었어요?..');
+			}
+			reader.readAsArrayBuffer(file);
+		}
+		else {
+			alert( '파일이 없는 걸로..');
+		}
+	}
+
+	// 체크된 라이브러리 타입 값 가져오기
+	function getLibraryType(){
+        var obj_length = document.getElementsByName("libraryType").length;
+        var libraryType = "";
+
+        for (var i=0; i<obj_length; i++) {
+            if (document.getElementsByName("libraryType")[i].checked == true) {
+                libraryType = document.getElementsByName("libraryType")[i].value;
+            }
+        }
+        return libraryType;
+    }
+
+    // 확장자 추출
+	function extractExt(fileStr){
+	    var index = fileStr.lastIndexOf(".")+1;
+		var ext = fileStr.substring(index, fileStr.length);
+
+		return ext;
+	}
+
+    // zip 파일 내의 파일들 확장자 체크
+    function checkfilelist(zip)
+	{
+	    var isOkExtFlag1 = Boolean(false);
+	    var isOkExtFlag2 = Boolean(false);
+	    var isRealOkExt =  Boolean(false);
+
+	    var libraryType = getLibraryType();
+        console.log(libraryType);
+        console.log(typeof libraryType);
+
+		// Zip파일내의 모든 파일을 순회한다.(압축을 푼것이 아니고 zip파일내의 파일목록)
+		zip.forEach(
+			function (relativePath, entry)
+			{
+			        // 확장자 추출
+			        var fileName = entry.name;
+                    var ext = extractExt(fileName);
+
+                    var libraryType = getLibraryType();
+
+                    // 확장자 check
+                    if( libraryType == "bim") { // .xlsx(필수) / .rfa .smt(중 하나 필수)
+                        if(ext == 'xlsx'){
+                            isOkExtFlag1 = true;
+                        } else if( ext == 'jpg' || ext == 'png' ){
+                            isOkExtFlag2 = true;
+                        }
+                    }else if( libraryType == 'content') { // .xlsx .dyn(필수)
+                        if(ext == 'xlsx'){
+                            isOkExtFlag1 = true;
+                        } else if(ext == 'jpg'){
+                            isOkExtFlag2 = true;
+                        }
+                    }
+			}
+		);
+
+        isRealOkExt = isOkExtFlag1 && isOkExtFlag2;
+
+        // 라이브러리 종류 선택 안하고 파일 선택하면
+        // isRealOkExt==false 이기 때문에 필수파일이 부족하다고 alert 남
+        // 정확한 alert를 위해 아래 추가
+        if(libraryType == ""){
+            alert('라이브러리 종류를 선택해주세요');
+            location.href='/upload-form';
+        }
+        if( (!isRealOkExt) ){
+            alert('필수 파일이 부족합니다. 파일 확장자를 확인해주세요');
+            location.href='/upload-form';
+        }
+	}
+
+    // zip 파일 내의 파일들 보여주고, 다운도 받을 수 있게 함
+	function showfilelist( zip, outId )
+	{
+	  	var text = '<table border="1">';
+
+	  	text += '<tr>';
+	  	text += '<td>relativePath<br/>name</td>';
+	  	text += '<td>dir/file</td>';
+	  	text += '</tr>';
+
+		// Zip파일내의 모든 파일을 순회한다.(압축을 푼것이 아니고 zip파일내의 파일목록)
+		zip.forEach(
+			function (relativePath, entry )
+			{
+					text += '<tr>';
+					text += '<td>';
+
+					// 사용자가 목록의 항목을 클릭할 경우 다운로드 받게 한다.
+					text += '<a href="javascript:zip_download_content( zipInst, \'' + entry.name + '\', \'' + entry.name + '\' )">';
+					text += relativePath + '<br/>'+ entry.name;
+					text += '</a></td>';
+					text += '<td>' + ( entry.dir ? 'dir' : 'file' ) + '</td>';
+					text += '</tr>';
+			}
+		);
+		text += '</table>';
+		document.getElementById( outId ).innerHTML = text;
+	}
+	</script>
+</head>
+<body>
+<div class="container">
+    <div class="py-5 text-center">
+        <h2>첨부파일 등록</h2>
+    </div>
+    <form th:action method="post" enctype="multipart/form-data">
+        <ul>
+            <li>라이브러리 명   <input type="text" name="libraryName"></li>
+            <li>라이브러리 종류
+                <label><input type="radio" name="libraryType" value="bim">BIM Library</label>
+                <label><input type="radio" name="libraryType" value="content">기술콘텐츠</label></li>
+            <li>Zip파일 선택 : <input id="fileForUpload" type="file" name="attachFile" onchange="myOnChangeFile(event)" /></li>
+        </ul>
+        <input type="submit"/>
+    </form>
+
+    <!--zip 파일 내의 파일들 다운-->
+    <div id="zip_cotents"></div>
+</div> <!-- /container -->
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+	#zip_cotents {
+		width: 100%;
+		height: 400px;
+		overflow: auto;
+	}
+	</style>
+
+    <script type="text/javascript" src="../jszip/jszip.min.js"></script>
+    <script type="text/javascript" src="../jszip/jszip-utils.min.js"></script>
+    <script type="text/javascript" src="http://danml.com/js/download.js"></script>
+    <script type="text/javascript" src="../jszip/zip_common.js"></script>
+
+    <script type="text/javascript">
+
+	// global(window)영역에 zip-instance를 만들어 둔다.
+	var zipInst = null;
+
+	function myOnChangeFile(evt)
+	{
+		var file = document.getElementById("fileForUpload").files[0];
+
+		if ( file )
+		{
+			var reader = new FileReader();
+
+			reader.onload = function (evt) {
+
+				// 파일내용을 읽으면 이 곳에 온다.
+				// 파일내용은 evt.target.result에 있게 되고 이를 JSZip에 넘겨 구조를 파악하게 한다.
+				JSZip.loadAsync( evt.target.result ).then(
+
+					// Zip파일내용이 처리되면 화면에 그리는 코드가 수행될 것이다.
+					function ( zip )
+			  		{
+			  			zipInst = zip;
+			  			checkfilelist( zipInst );
+			  			showfilelist( zipInst, 'zip_cotents' );
+					}
+				);
+	    		}
+
+			reader.onerror = function (evt) {
+	     		alert( '파일을 못 열었어요?..');
+			}
+			reader.readAsArrayBuffer(file);
+		}
+		else {
+			alert( '파일이 없는 걸로..');
+		}
+	}
+
+    function checkfilelist( zip)
+	{
+	    var isOkExtFlag1 = Boolean(false);
+	    var isOkExtFlag2 = Boolean(false);
+	    var isRealOkExt =  Boolean(false);
+
+		// Zip파일내의 모든 파일을 순회한다.(압축을 푼것이 아니고 zip파일내의 파일목록)
+		zip.forEach(
+			function (relativePath, entry )
+			{
+			        // 확장자 추출
+			        var fileName = entry.name;
+			        var index = fileName.lastIndexOf(".")+1;
+			        var ext = entry.name.substring(index, fileName.length);
+                    var libraryType = 'content';
+
+                    // 확장자 check
+                    if( libraryType == 'bim') { // .xlsx(필수) / .rfa .smt(중 하나 필수)
+                        if(ext == 'xlsx'){
+                            isOkExtFlag1 = true;
+                        } else if( ext == 'jpg' || ext == 'png' ){
+                            isOkExtFlag2 = true;
+                        }
+                    }else if( libraryType == 'content') { // .xlsx .dyn(필수)
+                        if(ext == 'xlsx'){
+                            isOkExtFlag1 = true;
+                        } else if(ext == 'jpg'){
+                            isOkExtFlag2 = true;
+                        }
+                    }
+			}
+		);
+
+        isRealOkExt = isOkExtFlag1 && isOkExtFlag2;
+
+        if( (!isRealOkExt) ){
+            alert('필수 파일이 부족합니다. 파일 확장자를 확인해주세요');
+            location.href='/file_upload';
+        }
+	}
+
+	function showfilelist( zip, outId )
+	{
+	  	var text = '<table border="1">';
+
+	  	text += '<tr>';
+	  	text += '<td>relativePath<br/>name</td>';
+	  	text += '<td>dir/file</td>';
+	  	text += '</tr>';
+
+		// Zip파일내의 모든 파일을 순회한다.(압축을 푼것이 아니고 zip파일내의 파일목록)
+		zip.forEach(
+			function (relativePath, entry )
+			{
+					text += '<tr>';
+					text += '<td>';
+
+					// 사용자가 목록의 항목을 클릭할 경우 다운로드 받게 한다.
+					text += '<a href="javascript:zip_download_content( zipInst, \'' + entry.name + '\', \'' + entry.name + '\' )">';
+					text += relativePath + '<br/>'+ entry.name;
+					text += '</a></td>';
+					text += '<td>' + ( entry.dir ? 'dir' : 'file' ) + '</td>';
+					text += '</tr>';
+			}
+		);
+		text += '</table>';
+		document.getElementById( outId ).innerHTML = text;
+	}
+	</script>
+
+</head>
+<body>
+<div>
+    <div>
+        Zip파일 선택 : <input id="fileForUpload" type="file" name="zipfilename" onchange="myOnChangeFile(event)" />
+    </div>
+
+    <!-- zip 파일의 내용을 보여주는 부분 -->
+    <div id="zip_cotents"></div>
+</div>
+
+</body>
+</html>

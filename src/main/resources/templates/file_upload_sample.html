@@ -1,7 +1,16 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+
+    <style>
+	#zip_cotents {
+		width: 100%;
+		height: 400px;
+		overflow: auto;
+	}
+	</style>
+
     <script type="text/javascript" src="../jszip/jszip.min.js"></script>
     <script type="text/javascript" src="../jszip/jszip-utils.min.js"></script>
     <script type="text/javascript" src="http://danml.com/js/download.js"></script>
@@ -14,19 +23,7 @@
 
 	function myOnChangeFile(evt)
 	{
-	    //zip 파일
 		var file = document.getElementById("fileForUpload").files[0];
-
-		//확장자 추출
-		var fileName = document.getElementById("fileForUpload").value;
-        var ext = extractExt(fileName);
-
-        console.log(ext);
-
-        if(ext != 'zip'){
-            alert('zip 형식의 압축파일만 업로드할 수 있습니다.');
-            location.href='/upload-form';
-        }
 
 		if ( file )
 		{
@@ -58,50 +55,24 @@
 		}
 	}
 
-	// 체크된 라이브러리 타입 값 가져오기
-	function getLibraryType(){
-        var obj_length = document.getElementsByName("libraryType").length;
-        var libraryType = "";
-
-        for (var i=0; i<obj_length; i++) {
-            if (document.getElementsByName("libraryType")[i].checked == true) {
-                libraryType = document.getElementsByName("libraryType")[i].value;
-            }
-        }
-        return libraryType;
-    }
-
-    // 확장자 추출
-	function extractExt(fileStr){
-	    var index = fileStr.lastIndexOf(".")+1;
-		var ext = fileStr.substring(index, fileStr.length);
-
-		return ext;
-	}
-
-    // zip 파일 내의 파일들 확장자 체크
-    function checkfilelist(zip)
+    function checkfilelist( zip)
 	{
 	    var isOkExtFlag1 = Boolean(false);
 	    var isOkExtFlag2 = Boolean(false);
 	    var isRealOkExt =  Boolean(false);
 
-	    var libraryType = getLibraryType();
-        console.log(libraryType);
-        console.log(typeof libraryType);
-
 		// Zip파일내의 모든 파일을 순회한다.(압축을 푼것이 아니고 zip파일내의 파일목록)
 		zip.forEach(
-			function (relativePath, entry)
+			function (relativePath, entry )
 			{
 			        // 확장자 추출
 			        var fileName = entry.name;
-                    var ext = extractExt(fileName);
-
-                    var libraryType = getLibraryType();
+			        var index = fileName.lastIndexOf(".")+1;
+			        var ext = entry.name.substring(index, fileName.length);
+                    var libraryType = 'content';
 
                     // 확장자 check
-                    if( libraryType == "bim") { // .xlsx(필수) / .rfa .smt(중 하나 필수)
+                    if( libraryType == 'bim') { // .xlsx(필수) / .rfa .smt(중 하나 필수)
                         if(ext == 'xlsx'){
                             isOkExtFlag1 = true;
                         } else if( ext == 'jpg' || ext == 'png' ){
@@ -119,23 +90,12 @@
 
         isRealOkExt = isOkExtFlag1 && isOkExtFlag2;
 
-        // 라이브러리 종류 선택 안하고 파일 선택하면
-        // isRealOkExt==false 이기 때문에 필수파일이 부족하다고 alert 남
-        // 정확한 alert를 위해 아래 추가
-        if(libraryType == ""){
-            alert('라이브러리 종류를 선택해주세요');
-            location.href='/upload-form';
-        }
-        if( (!isRealOkExt) && (libraryType == "bim") ){
-            alert('필수 등록할 파일종류는 .xlsx이고, .jpg 혹은 .png 중 하나는 필수입니다.');
-            location.href='/upload-form';
-        }else if( (!isRealOkExt) && (libraryType == "content") ){
-            alert('필수 등록할 파일종류는 .xlsx, .jpg 입니다.');
-            location.href='/upload-form';
+        if( (!isRealOkExt) ){
+            alert('필수 파일이 부족합니다. 파일 확장자를 확인해주세요');
+            location.href='/file_upload';
         }
 	}
 
-    // zip 파일 내의 파일들 보여주고, 다운도 받을 수 있게 함
 	function showfilelist( zip, outId )
 	{
 	  	var text = '<table border="1">';
@@ -164,25 +124,17 @@
 		document.getElementById( outId ).innerHTML = text;
 	}
 	</script>
+
 </head>
 <body>
-<div class="container">
-    <div class="py-5 text-center">
-        <h2>첨부파일 등록</h2>
+<div>
+    <div>
+        Zip파일 선택 : <input id="fileForUpload" type="file" name="zipfilename" onchange="myOnChangeFile(event)" />
     </div>
-    <form th:action method="post" enctype="multipart/form-data">
-        <ul>
-            <li>라이브러리 명   <input type="text" name="libraryName"></li>
-            <li>라이브러리 종류
-                <label><input type="radio" name="libraryType" value="bim">BIM Library</label>
-                <label><input type="radio" name="libraryType" value="content">기술콘텐츠</label></li>
-            <li>Zip파일 선택 : <input id="fileForUpload" type="file" name="attachFile" onchange="myOnChangeFile(event)" /></li>
-        </ul>
-        <input type="submit"/>
-    </form>
 
-    <!--zip 파일 내의 파일들 다운-->
+    <!-- zip 파일의 내용을 보여주는 부분 -->
     <div id="zip_cotents"></div>
-</div> <!-- /container -->
+</div>
+
 </body>
 </html>

@@ -15,6 +15,7 @@ public class MyFile {
 //    @ManyToOne //파일 여러개에 라이브러리 하나
 //    @JoinColumn(name = "library_no")
 //    private MyLibrary library;
+    private Long library_no;
 
     @Column(name="upload_file_name")
     private String uploadFileName; //고객이 업로드한 파일명

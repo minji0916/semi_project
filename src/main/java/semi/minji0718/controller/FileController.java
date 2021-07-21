@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileStore;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -46,6 +47,9 @@ public class FileController {
 
     @Autowired
     FileService fileService;
+
+    //임시 라이브러리 no
+    private long library_no_seq = 0L;
 
 
     @GetMapping("/files/new")
@@ -62,6 +66,7 @@ public class FileController {
     public String saveFile(@ModelAttribute FileForm form, RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
         MultipartFile multipartFile = form.getAttachFile();
         String originalFilename = multipartFile.getOriginalFilename();
+
 
         // 1. zip 파일 저장
         UploadFile attachFile = fileService.storeFile(multipartFile);
@@ -88,24 +93,34 @@ public class FileController {
             file.setUploadFileName(tempFileName);
             file.setStoreFileName(storeFileName);
             file.setPath(fileDir+form.getLibraryName());
+            file.setLibrary_no(library_no_seq);
 
             fileRepository.saveFile(file);
         }
 
         // 저장 됐을 때, 아이템 아이디 넘겨줌
-        redirectAttributes.addAttribute("fileNo", 1L);
+        redirectAttributes.addAttribute("libraryNo", library_no_seq);
+
+        library_no_seq++;
 
         // 아이템 아이디 넘겨받음
-        return "redirect:/files/{fileNo}";
+        return "redirect:/files/{libraryNo}";
     }
 
     @GetMapping("/files/{no}")
     public String files(@PathVariable Long no, Model model) {
+        log.info("heyhey here");
+
         // 아이템 찾기
-        MyFile file = fileRepository.findByFileNo(no).get();
+        List<MyFile> files =  fileRepository.findByLibraryNo(no);
+        log.info("files: " + files);
+
+        for (int idx=0; idx<files.size(); idx++) {
+            log.info("please give file_name : " + files.get(idx).getUploadFileName());
+        }
 
         // 아이템 넘겨 받음
-        model.addAttribute("file", file);
+        model.addAttribute("files", files);
 
         return "file-view";
     }

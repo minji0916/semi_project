@@ -8,9 +8,8 @@
     <div class="py-5 text-center"> <h2>파일 조회</h2>
     </div>
     <!--/*@thymesVar id="file" type="package semi.minji0718.domain.MyFile"*/-->
-    첨부파일: <a th:if="${file}" th:href="|/attach/${file.getNo()}|" th:text="${file.getUploadFileName()}" /><br/> <!--첨부파일 다운 받을 수 있는 링크 : 고객이 업로드한 파일명으로 나옴-->
+    첨부파일: <a th:each="${file}" th:href="|/attach/${file.getNo()}|" th:text="${file.getUploadFileName()}" /><br/> <!--첨부파일 다운 받을 수 있는 링크 : 고객이 업로드한 파일명으로 나옴-->
+    <img th:each="imageFile : ${item.imageFiles}" th:src="|/images/${imageFile.getStoreFileName()}|" width="300" height="300"/> &lt;!&ndash;이미지 자체로 나옴&ndash;&gt;-->
 </div> <!-- /container -->
 </body>
 </html>
-<!--file.getUploadFileName();-->
-<!--file.();-->

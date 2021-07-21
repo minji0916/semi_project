@@ -48,6 +48,18 @@ public class FileService {
         return fileRepository.findByLibraryNo(library_no);
     }
 
+    // 업로드 파일이 여러 개일 때, multipartFile이 비어있지 않으면 storreFileResult에 추가
+    public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
+        List<UploadFile> storeFileResult = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            //multipartFile이 비어있지 않으면 storeFileResult에 추가
+            if(!multipartFile.isEmpty()){
+                storeFileResult.add(storeFile(multipartFile));
+            }
+        }
+        return storeFileResult;
+    }
+
     // 파일 저장
     // multipartFile 받아서 파일 저장
     // UploadFile 형태로 반환 : uploadFileName, storeFileName( UUID.확장자 )
